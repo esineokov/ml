@@ -2,10 +2,10 @@ offers = []
 result = dict()
 
 while True:
-    name = str(input("название: "))
-    price = int(input("цена: "))
-    amount = int(input("количество: "))
-    units = str(input("ед: "))
+    name = input("название: ")
+    price = input("цена: ")
+    amount = input("количество: ")
+    units = input("ед: ")
 
     offers.append((len(offers)+1, {"название": name, "цена": price, "количество": amount, "ед": units}))
 
