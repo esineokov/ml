@@ -1,171 +1,164 @@
-create schema mvideo;
-use mvideo;
+create schema mvideo2;
+use mvideo2;
 
-create table actions
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	name varchar(100) not null comment 'название',
-	create_at datetime default CURRENT_TIMESTAMP not null comment 'дата создания',
-	update_at datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'дата обновления',
-	date_from datetime not null comment 'дата начала',
-	date_to datetime not null comment 'дата окончания',
-	active tinyint(1) default 0 not null comment 'статус активности'
-)
-comment 'акции';
-
-create table categories
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	name varchar(100) not null comment 'имя категории',
-	create_at datetime default CURRENT_TIMESTAMP not null comment 'дата создания',
-	update_at datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'дата обновления'
-)
-comment 'категории товаров';
-
-create table order_status
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	name varchar(20) not null comment 'название'
-)
-comment 'статус заказа';
-
-create table products
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	name varchar(100) null comment 'название товара',
-	create_at datetime default CURRENT_TIMESTAMP not null comment 'дата создания',
-	update_at datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'дата обновления',
-	deleted tinyint(1) default 0 not null comment 'признак удаления'
-)
-comment 'товары';
-
-create table action_categories
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	action_id int not null comment 'id акции',
-	category_id int null comment 'категория товара',
-	product_id int null comment 'id товара',
-	include int default 1 not null comment 'статус причастности к акции',
-	constraint action_categories_actions_id_fk
-		foreign key (action_id) references actions (id),
-	constraint action_categories_categories_id_fk
-		foreign key (category_id) references categories (id),
-	constraint action_categories_products_id_fk
-		foreign key (product_id) references products (id)
-)
-comment 'категории и товары для акции';
-
-create table mvideo.prices
-(
-    id         int auto_increment comment 'первичный ключ'
-        primary key,
-    product_id int                                not null comment 'id товара',
-    price      float                              null comment 'цена',
-    date_from  datetime default CURRENT_TIMESTAMP not null comment 'дата и время, с которого установлена цена',
-    date_to    datetime                           null comment 'дата и время, по которое действовала цена',
-    constraint prices_products_id_fk
-        foreign key (product_id) references mvideo.products (id)
-)
-    comment 'цены товаров';
+DROP TABLE IF EXISTS `actions`;
+CREATE TABLE `actions` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `name` varchar(100) NOT NULL COMMENT 'название',
+  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата создания',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'дата обновления',
+  `discount` int NOT NULL,
+  `date_from` datetime NOT NULL COMMENT 'дата начала',
+  `date_to` datetime NOT NULL COMMENT 'дата окончания',
+  `active` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'статус активности',
+  PRIMARY KEY (`id`)
+) COMMENT='акции';
 
 
-create table product_categories
-(
-	product_id int not null comment 'id товара',
-	category_id int not null comment 'id категории',
-	constraint product_categories_categories_id_fk
-		foreign key (category_id) references categories (id),
-	constraint product_categories_products_id_fk
-		foreign key (product_id) references products (id)
-)
-comment 'категории за которыми закреплены продукты';
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE `categories` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `name` varchar(100) NOT NULL COMMENT 'имя категории',
+  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата создания',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'дата обновления',
+  PRIMARY KEY (`id`)
+) COMMENT='категории товаров';
 
-create index product_categories_product_id_category_id_index
-	on product_categories (product_id, category_id);
 
-create table stores
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	name varchar(100) not null comment 'название',
-	city varchar(50) not null comment 'город',
-	address varchar(100) not null comment 'адрес',
-	phone varchar(20) not null comment 'телефон'
-)
-comment 'склад/магазин';
+DROP TABLE IF EXISTS `order_status`;
+CREATE TABLE `order_status` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `name` varchar(20) NOT NULL COMMENT 'название',
+  PRIMARY KEY (`id`)
+) COMMENT='статус заказа';
 
-create table stocks
-(
-	product_id int not null comment 'id товара',
-	store_id int not null comment 'id склада/магазина',
-	count int default 0 not null,
-	constraint stocks_product_id_store_id_uindex
-		unique (product_id, store_id),
-	constraint stocks_stores_id_fk
-		foreign key (store_id) references stores (id)
-)
-comment 'складской учет товаров';
 
-create table users
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	email varchar(50) null comment 'почта',
-	phone varchar(20) null comment 'телефон',
-	name varchar(50) not null comment 'имя',
-	blocked tinyint(1) default 0 not null comment 'статус блокировки',
-	create_at datetime default CURRENT_TIMESTAMP not null comment 'дата создания',
-	update_at datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'дата обновления',
-	confirmed int default 0 not null comment 'статус верификации покупателя'
-)
-comment 'покупатели';
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE `products` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `name` varchar(100) DEFAULT NULL COMMENT 'название товара',
+  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата создания',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'дата обновления',
+  `deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'признак удаления',
+  PRIMARY KEY (`id`)
+) COMMENT='товары';
 
-create table orders
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	user_id int not null comment 'id покупателя',
-	create_at datetime default CURRENT_TIMESTAMP not null comment 'дата создания',
-	update_at datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'дата обновления',
-	total_price int not null comment 'сумма заказа',
-	status_id int default 0 not null comment 'статус заказа',
-	constraint orders_order_status_id_fk
-		foreign key (status_id) references order_status (id),
-	constraint orders_users_id_fk
-		foreign key (user_id) references users (id)
-)
-comment 'заказы';
+DROP TABLE IF EXISTS `action_categories`;
+CREATE TABLE `action_categories` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `action_id` int NOT NULL COMMENT 'id акции',
+  `category_id` int DEFAULT NULL COMMENT 'категория товара',
+  `product_id` int DEFAULT NULL COMMENT 'id товара',
+  `include` int NOT NULL DEFAULT '1' COMMENT 'статус причастности к акции',
+  PRIMARY KEY (`id`),
+  KEY `action_categories_actions_id_fk` (`action_id`),
+  KEY `action_categories_categories_id_fk` (`category_id`),
+  KEY `action_categories_products_id_fk` (`product_id`),
+  CONSTRAINT `action_categories_actions_id_fk` FOREIGN KEY (`action_id`) REFERENCES `actions` (`id`),
+  CONSTRAINT `action_categories_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
+  CONSTRAINT `action_categories_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) COMMENT='категории и товары для акции';
 
-create table order_products
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	order_id int not null comment 'id заказа',
-	product_id int not null comment 'id товара',
-	constraint order_products_orders_id_fk
-		foreign key (order_id) references orders (id),
-	constraint order_products_products_id_fk
-		foreign key (product_id) references products (id)
-)
-comment 'позциии заказа';
 
-create table user_cards
-(
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	user_id int not null comment 'id покупателя',
-	code varchar(50) not null comment 'код карты',
-	points int default 0 not null comment 'баллы',
-	create_at datetime default CURRENT_TIMESTAMP not null comment 'дата создания',
-	update_at datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment 'дата обновления',
-	blocked tinyint(1) default 0 not null comment 'статус блокировки',
-	constraint user_cards_users_id_fk
-		foreign key (user_id) references users (id)
-)
-comment 'бонусные карты покупателей';
+DROP TABLE IF EXISTS `prices`;
+CREATE TABLE `prices` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `product_id` int NOT NULL COMMENT 'id товара',
+  `price` float DEFAULT NULL COMMENT 'цена',
+  `date_from` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата и время, с которого установлена цена',
+  `date_to` datetime DEFAULT NULL COMMENT 'дата и время, по которое действовала цена',
+  PRIMARY KEY (`id`),
+  KEY `prices_products_id_fk` (`product_id`),
+  CONSTRAINT `prices_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) COMMENT='цены товаров';
 
+
+DROP TABLE IF EXISTS `product_categories`;
+CREATE TABLE `product_categories` (
+  `product_id` int NOT NULL COMMENT 'id товара',
+  `category_id` int NOT NULL COMMENT 'id категории',
+  KEY `product_categories_categories_id_fk` (`category_id`),
+  KEY `product_categories_product_id_category_id_index` (`product_id`,`category_id`),
+  CONSTRAINT `product_categories_categories_id_fk` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
+  CONSTRAINT `product_categories_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) COMMENT='категории за которыми закреплены продукты';
+
+
+DROP TABLE IF EXISTS `stores`;
+CREATE TABLE `stores` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `name` varchar(100) NOT NULL COMMENT 'название',
+  `city` varchar(50) NOT NULL COMMENT 'город',
+  `address` varchar(100) NOT NULL COMMENT 'адрес',
+  `phone` varchar(20) NOT NULL COMMENT 'телефон',
+  PRIMARY KEY (`id`)
+) COMMENT='склад/магазин';
+
+
+DROP TABLE IF EXISTS `stocks`;
+CREATE TABLE `stocks` (
+  `product_id` int NOT NULL COMMENT 'id товара',
+  `store_id` int NOT NULL COMMENT 'id склада/магазина',
+  `count` int NOT NULL DEFAULT '0',
+  UNIQUE KEY `stocks_product_id_store_id_uindex` (`product_id`,`store_id`),
+  KEY `stocks_stores_id_fk` (`store_id`),
+  CONSTRAINT `stocks_stores_id_fk` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`)
+) COMMENT='складской учет товаров';
+
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `email` varchar(50) DEFAULT NULL COMMENT 'почта',
+  `phone` varchar(20) DEFAULT NULL COMMENT 'телефон',
+  `name` varchar(50) NOT NULL COMMENT 'имя',
+  `blocked` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'статус блокировки',
+  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата создания',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'дата обновления',
+  `confirmed` int NOT NULL DEFAULT '0' COMMENT 'статус верификации покупателя',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='покупатели';
+
+
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE `orders` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `user_id` int NOT NULL COMMENT 'id покупателя',
+  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата создания',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'дата обновления',
+  `total_price` int NOT NULL COMMENT 'сумма заказа',
+  `status_id` int NOT NULL DEFAULT '0' COMMENT 'статус заказа',
+  PRIMARY KEY (`id`),
+  KEY `orders_order_status_id_fk` (`status_id`),
+  KEY `orders_users_id_fk` (`user_id`),
+  CONSTRAINT `orders_order_status_id_fk` FOREIGN KEY (`status_id`) REFERENCES `order_status` (`id`),
+  CONSTRAINT `orders_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) COMMENT='заказы';
+
+
+DROP TABLE IF EXISTS `order_products`;
+CREATE TABLE `order_products` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `order_id` int NOT NULL COMMENT 'id заказа',
+  `product_id` int NOT NULL COMMENT 'id товара',
+  PRIMARY KEY (`id`),
+  KEY `order_products_orders_id_fk` (`order_id`),
+  KEY `order_products_products_id_fk` (`product_id`),
+  CONSTRAINT `order_products_orders_id_fk` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
+  CONSTRAINT `order_products_products_id_fk` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+)  COMMENT='позциии заказа';
+
+
+DROP TABLE IF EXISTS `user_cards`;
+CREATE TABLE `user_cards` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'первичный ключ',
+  `user_id` int NOT NULL COMMENT 'id покупателя',
+  `code` varchar(50) NOT NULL COMMENT 'код карты',
+  `points` int NOT NULL DEFAULT '0' COMMENT 'баллы',
+  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'дата создания',
+  `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'дата обновления',
+  `blocked` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'статус блокировки',
+  PRIMARY KEY (`id`),
+  KEY `user_cards_users_id_fk` (`user_id`),
+  CONSTRAINT `user_cards_users_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) COMMENT='бонусные карты покупателей';
