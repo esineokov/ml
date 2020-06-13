@@ -1,5 +1,4 @@
 create schema mvideo;
-
 use mvideo;
 
 create table actions
@@ -61,17 +60,19 @@ create table action_categories
 )
 comment 'категории и товары для акции';
 
-create table prices
+create table mvideo.prices
 (
-	id int auto_increment comment 'первичный ключ'
-		primary key,
-	product_id int not null comment 'id товара',
-	date_from datetime default CURRENT_TIMESTAMP not null comment 'дата и время, с которого установлена цена',
-	date_to datetime null comment 'дата и время, по которое действовала цена',
-	constraint prices_products_id_fk
-		foreign key (product_id) references products (id)
+    id         int auto_increment comment 'первичный ключ'
+        primary key,
+    product_id int                                not null comment 'id товара',
+    price      float                              null comment 'цена',
+    date_from  datetime default CURRENT_TIMESTAMP not null comment 'дата и время, с которого установлена цена',
+    date_to    datetime                           null comment 'дата и время, по которое действовала цена',
+    constraint prices_products_id_fk
+        foreign key (product_id) references mvideo.products (id)
 )
-comment 'цены товаров';
+    comment 'цены товаров';
+
 
 create table product_categories
 (
