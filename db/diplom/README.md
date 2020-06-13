@@ -3,7 +3,7 @@
 
 # Скрипты
 * [Создание БД](./create.sql)
-* [ERDiagram](./ERDiagram.ong)
+* [ERDiagram](./ERDiagram.png)
 * [Скрипты наполнения БД данными](./insert.sql)
 * [Скрипты характерных выборок](./select.sql)
 * [Представления](./view.sql)
