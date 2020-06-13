@@ -1,4 +1,4 @@
-use mvideo2;
+use mvideo;
 
 CREATE VIEW current_prices AS 
     select p.id AS id,

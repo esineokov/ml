@@ -1,5 +1,5 @@
-create schema mvideo2;
-use mvideo2;
+create schema mvideo;
+use mvideo;
 
 DROP TABLE IF EXISTS `actions`;
 CREATE TABLE `actions` (
