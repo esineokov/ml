@@ -16,29 +16,18 @@ import requests
 from bs4 import BeautifulSoup
 from tabulate import tabulate
 
-if len(sys.argv) < 2:
-    exit("Incorrect incoming values\nPlease use:\n\tpython task_1.py vacancy_name [n]\nn - pages count (1 - default)")
 
 timeout_s = 7
 sj_host = "https://www.superjob.ru"
 hh_host = "https://hh.ru"
+
+columns = ['Name', 'Salary min', 'Salary max', 'link', 'site']
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 
 user_agent = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183."
               "83 Safari/537.36")
-
-columns = ['Name', 'Salary min', 'Salary max', 'link', 'site']
-
-keyword = sys.argv[1]
-try:
-    n_pages = int(sys.argv[2]) if len(sys.argv) == 3 else 1
-except Exception as e:
-    n_pages = 1
-
-if n_pages == 0:
-    n_pages = 1
 
 
 def get_page(url):
@@ -47,7 +36,7 @@ def get_page(url):
 
 
 def text_to_salary(text):
-    return "".join(re.findall("[0-9]+", text))
+    return int("".join(re.findall("[0-9]+", text)))
 
 
 def get_vacancy_from_sj(keyword, n_pages=1):
@@ -74,8 +63,8 @@ def get_vacancy_from_sj(keyword, n_pages=1):
                 salary_max = text_to_salary(salary)
             elif 'от ' in salary:
                 salary_min = text_to_salary(salary)
-            else:
-                salary_min = salary_max = salary
+            # else:
+            #     salary_min = salary_max = salary
 
             link = urllib.parse.urljoin(sj_host, v.find("a", attrs={"class": 'icMQ_'}).attrs['href'])
             site = sj_host
@@ -104,8 +93,8 @@ def get_vacancy_from_hh(keyword, n_pages=1):
                 salary_max = text_to_salary(salary)
             elif 'от ' in salary:
                 salary_min = text_to_salary(salary)
-            else:
-                salary_min = salary_max = salary
+            # else:
+            #     salary_min = salary_max = salary
 
             link = v.find("a", attrs={"data-qa": 'vacancy-serp__vacancy-title'}).attrs['href'].split("?")[0]
             site = hh_host
@@ -113,7 +102,22 @@ def get_vacancy_from_hh(keyword, n_pages=1):
     return results
 
 
-df_sj = pd.DataFrame(get_vacancy_from_sj(keyword=keyword, n_pages=n_pages), columns=columns)
-df_hh = pd.DataFrame(get_vacancy_from_hh(keyword=keyword, n_pages=n_pages), columns=columns)
-print(tabulate(df_sj.append(df_hh), headers='keys', tablefmt='psql'))
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        exit(
+            "Incorrect incoming values\nPlease use:\n\tpython task_1.py vacancy_name [n]\nn - pages count (1 - default)"
+        )
+
+    keyword = sys.argv[1]
+    try:
+        n_pages = int(sys.argv[2]) if len(sys.argv) == 3 else 1
+    except Exception as e:
+        n_pages = 1
+
+    if n_pages == 0:
+        n_pages = 1
+
+    df_sj = pd.DataFrame(get_vacancy_from_sj(keyword=keyword, n_pages=n_pages), columns=columns)
+    df_hh = pd.DataFrame(get_vacancy_from_hh(keyword=keyword, n_pages=n_pages), columns=columns)
+    print(tabulate(df_sj.append(df_hh), headers='keys', tablefmt='psql'))
 
