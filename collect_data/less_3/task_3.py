@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         exit(
-            "Incorrect incoming values\nPlease use:\n\tpython task_1.py vacancy_name [n]\nn - pages count (1 - default)"
+            "Incorrect incoming values\nPlease use:\n\tpython task_3.py vacancy_name [n]\nn - pages count (1 - default)"
         )
 
     keyword = sys.argv[1]
