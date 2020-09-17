@@ -6,7 +6,7 @@ import requests
 
 host = "https://api.github.com"
 timeout_s = 7
-user = "esineokov"
+user = "esineokov" 
 
 
 def get_user_repos(user):
