@@ -15,4 +15,4 @@ def get_current_weather_city(city):
         json.dump(response.json(), file, indent=2)
 
 
-get_current_weather_city("Moscow")
+get_current_weather_city("Moscow") 
