@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     try:
         salary = int(sys.argv[1]) if len(sys.argv) == 2 else 0
-    except Exception as e:
+    except Exception as e: 
         salary = 0
 
     client = MongoClient()
